@@ -12,7 +12,7 @@ from sklearn.metrics import (
     confusion_matrix
 )
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 
 # Load the feature-engineered dataset
 file_path = "data/processed/ecommerce_churn_features.csv"
@@ -187,3 +187,61 @@ print("\nRandom Forest 5-Fold Cross-Validation:")
 print("ROC-AUC scores:", cv_scores)
 print(f"Mean ROC-AUC: {cv_scores.mean():.4f}")
 print(f"Standard deviation: {cv_scores.std():.4f}")
+
+# --------------------------------------------------
+# Hyperparameter tuning for Random Forest
+# --------------------------------------------------
+
+param_grid = {
+    "n_estimators": [100, 200],
+    "max_depth": [10, 20, None],
+    "min_samples_split": [2, 5],
+    "min_samples_leaf": [1, 2]
+}
+
+print("\nRandom Forest hyperparameter grid:")
+print(param_grid)
+
+# Create the GridSearchCV object
+grid_search = GridSearchCV(
+    estimator=RandomForestClassifier(random_state=42),
+    param_grid=param_grid,
+    cv=5,
+    scoring="roc_auc",
+    n_jobs=-1
+)
+
+print("\nRunning GridSearchCV...")
+
+# Search for the best hyperparameters using only the training data
+grid_search.fit(X_train, y_train)
+
+print("\nGridSearchCV completed.")
+
+print("\nBest hyperparameters:")
+print(grid_search.best_params_)
+
+print("\nBest cross-validation ROC-AUC:")
+print(f"{grid_search.best_score_:.4f}")
+
+# --------------------------------------------------
+# Evaluate the best model selected by GridSearchCV
+# --------------------------------------------------
+
+best_rf_model = grid_search.best_estimator_
+
+best_rf_pred = best_rf_model.predict(X_test)
+best_rf_prob = best_rf_model.predict_proba(X_test)[:, 1]
+
+best_rf_accuracy = accuracy_score(y_test, best_rf_pred)
+best_rf_precision = precision_score(y_test, best_rf_pred)
+best_rf_recall = recall_score(y_test, best_rf_pred)
+best_rf_f1 = f1_score(y_test, best_rf_pred)
+best_rf_roc_auc = roc_auc_score(y_test, best_rf_prob)
+
+print("\nTuned Random Forest Test Results:")
+print(f"Accuracy:  {best_rf_accuracy:.4f}")
+print(f"Precision: {best_rf_precision:.4f}")
+print(f"Recall:    {best_rf_recall:.4f}")
+print(f"F1 Score:  {best_rf_f1:.4f}")
+print(f"ROC-AUC:   {best_rf_roc_auc:.4f}")
