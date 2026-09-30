@@ -6,3 +6,6 @@ __pycache__/
 mlruns/
 
 *.pyc
+
+# Trained model artifacts
+models/

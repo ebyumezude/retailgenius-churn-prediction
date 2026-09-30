@@ -1,4 +1,6 @@
 import pandas as pd
+import joblib
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -245,3 +247,15 @@ print(f"Precision: {best_rf_precision:.4f}")
 print(f"Recall:    {best_rf_recall:.4f}")
 print(f"F1 Score:  {best_rf_f1:.4f}")
 print(f"ROC-AUC:   {best_rf_roc_auc:.4f}")
+
+# --------------------------------------------------
+# Save the final trained model
+# --------------------------------------------------
+
+os.makedirs("models", exist_ok=True)
+
+model_path = "models/random_forest_churn_model.pkl"
+
+joblib.dump(best_rf_model, model_path)
+
+print(f"\nFinal Random Forest model saved to: {model_path}")
