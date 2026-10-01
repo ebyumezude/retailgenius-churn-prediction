@@ -1,48 +1,110 @@
-import pandas as pd
-import joblib
 import os
-from sklearn.model_selection import train_test_split
+
+import joblib
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
     roc_auc_score,
-    confusion_matrix
 )
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import (
+    GridSearchCV,
+    cross_val_score,
+    train_test_split,
+)
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-# Load the feature-engineered dataset
-file_path = "data/processed/ecommerce_churn_features.csv"
+# ==================================================
+# 1. LOAD FEATURE-ENGINEERED DATA
+# ==================================================
+
+file_path = "data/processed/ecommerce_churn_cleaned.csv"
 
 df = pd.read_csv(file_path)
 
+print("Dataset loaded successfully.")
 
-# Separate features (X) and target (y)
+# ==================================================
+# STANDARDIZE CATEGORICAL VALUES
+# ==================================================
+
+df["PreferredLoginDevice"] = df["PreferredLoginDevice"].replace(
+    {
+        "Phone": "Mobile Phone",
+    }
+)
+
+df["PreferredPaymentMode"] = df["PreferredPaymentMode"].replace(
+    {
+        "CC": "Credit Card",
+        "COD": "Cash on Delivery",
+    }
+)
+
+print("Categorical values standardized successfully.")
+
+# ==================================================
+# DEFINE CATEGORICAL FEATURES
+# ==================================================
+
+categorical_columns = [
+    "PreferredLoginDevice",
+    "PreferredPaymentMode",
+    "Gender",
+    "PreferedOrderCat",
+    "MaritalStatus",
+]
+
+# ==================================================
+# CREATE PREPROCESSOR
+# ==================================================
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        (
+            "categorical",
+            OneHotEncoder(
+                drop="first",
+                handle_unknown="ignore",
+            ),
+            categorical_columns,
+        )
+    ],
+    remainder="passthrough",
+)
+
+# ==================================================
+# 2. SEPARATE FEATURES AND TARGET
+# ==================================================
+
 X = df.drop(columns=["Churn"])
 y = df["Churn"]
 
-
-print("Feature matrix shape:")
+print("\nFeature matrix shape:")
 print(X.shape)
 
 print("\nTarget shape:")
 print(y.shape)
 
 
-# Split the dataset into training and testing sets
+# ==================================================
+# 3. TRAIN / TEST SPLIT
+# ==================================================
+
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
     test_size=0.20,
     random_state=42,
-    stratify=y
+    stratify=y,
 )
-
 
 print("\nTraining set:")
 print(X_train.shape)
@@ -56,76 +118,96 @@ print(y_train.value_counts(normalize=True) * 100)
 print("\nTest target distribution:")
 print(y_test.value_counts(normalize=True) * 100)
 
-# -----------------------------------
-# LOGISTIC REGRESSION
-# -----------------------------------
 
-# Create the model
-# -----------------------------------
-# LOGISTIC REGRESSION
-# -----------------------------------
+# ==================================================
+# 4. LOGISTIC REGRESSION BASELINE
+# ==================================================
 
-# Create a pipeline that scales the features
-# before training Logistic Regression
-logistic_model = Pipeline([
-    ("scaler", StandardScaler()),
-    ("model", LogisticRegression(
-        max_iter=1000,
-        random_state=42
-    ))
-])
+# Logistic Regression benefits from feature scaling.
+# The pipeline ensures scaling is learned only from
+# the training data.
 
-# Train the model
+logistic_model = Pipeline(
+    steps=[
+        (
+            "preprocessor",
+            preprocessor,
+        ),
+        (
+            "scaler",
+            StandardScaler(
+                with_mean=False
+            ),
+        ),
+        (
+            "model",
+            LogisticRegression(
+                max_iter=1000,
+                random_state=42,
+            ),
+        ),
+    ]
+)
+
 logistic_model.fit(X_train, y_train)
 
 print("\nLogistic Regression training completed.")
 
-# -----------------------------------
-# EVALUATE LOGISTIC REGRESSION
-# -----------------------------------
 
-# Predict churn for the test customers
-y_pred = logistic_model.predict(X_test)
+# ==================================================
+# 5. EVALUATE LOGISTIC REGRESSION
+# ==================================================
 
-# Predict probability of churn
-y_prob = logistic_model.predict_proba(X_test)[:, 1]
+logistic_pred = logistic_model.predict(X_test)
+logistic_prob = logistic_model.predict_proba(X_test)[:, 1]
 
-# Calculate evaluation metrics
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred)
-recall = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
-roc_auc = roc_auc_score(y_test, y_prob)
+logistic_accuracy = accuracy_score(y_test, logistic_pred)
+logistic_precision = precision_score(y_test, logistic_pred)
+logistic_recall = recall_score(y_test, logistic_pred)
+logistic_f1 = f1_score(y_test, logistic_pred)
+logistic_roc_auc = roc_auc_score(y_test, logistic_prob)
 
 print("\nLogistic Regression Results:")
-print(f"Accuracy:  {accuracy:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"Recall:    {recall:.4f}")
-print(f"F1 Score:  {f1:.4f}")
-print(f"ROC-AUC:   {roc_auc:.4f}")
+print(f"Accuracy:  {logistic_accuracy:.4f}")
+print(f"Precision: {logistic_precision:.4f}")
+print(f"Recall:    {logistic_recall:.4f}")
+print(f"F1 Score:  {logistic_f1:.4f}")
+print(f"ROC-AUC:   {logistic_roc_auc:.4f}")
 
-print("\nConfusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
+print("\nLogistic Regression Confusion Matrix:")
+print(confusion_matrix(y_test, logistic_pred))
 
-# -----------------------------------
-# RANDOM FOREST
-# -----------------------------------
 
-random_forest_model = RandomForestClassifier(
-    n_estimators=100,
-    random_state=42
+# ==================================================
+# 6. RANDOM FOREST
+# ==================================================
+
+random_forest_model = Pipeline(
+    steps=[
+        (
+            "preprocessor",
+            preprocessor,
+        ),
+        (
+            "model",
+            RandomForestClassifier(
+                n_estimators=100,
+                random_state=42,
+            ),
+        ),
+    ]
 )
 
-# Train the model
 random_forest_model.fit(X_train, y_train)
 
-# Make predictions
 rf_pred = random_forest_model.predict(X_test)
-
-# Predict churn probabilities
 rf_prob = random_forest_model.predict_proba(X_test)[:, 1]
 
-# Calculate evaluation metrics
+
+# ==================================================
+# 7. EVALUATE RANDOM FOREST
+# ==================================================
+
 rf_accuracy = accuracy_score(y_test, rf_pred)
 rf_precision = precision_score(y_test, rf_pred)
 rf_recall = recall_score(y_test, rf_pred)
@@ -142,47 +224,66 @@ print(f"ROC-AUC:   {rf_roc_auc:.4f}")
 print("\nRandom Forest Confusion Matrix:")
 print(confusion_matrix(y_test, rf_pred))
 
-# -----------------------------------
-# CHECK FOR OVERFITTING
-# -----------------------------------
+
+# ==================================================
+# 8. OVERFITTING CHECK
+# ==================================================
 
 rf_train_pred = random_forest_model.predict(X_train)
 
-train_accuracy = accuracy_score(y_train, rf_train_pred)
-test_accuracy = accuracy_score(y_test, rf_pred)
+rf_train_accuracy = accuracy_score(y_train, rf_train_pred)
+rf_test_accuracy = accuracy_score(y_test, rf_pred)
 
 print("\nRandom Forest Overfitting Check:")
-print(f"Training Accuracy: {train_accuracy:.4f}")
-print(f"Test Accuracy:     {test_accuracy:.4f}")
-print(f"Difference:        {train_accuracy - test_accuracy:.4f}")
+print(f"Training Accuracy: {rf_train_accuracy:.4f}")
+print(f"Test Accuracy:     {rf_test_accuracy:.4f}")
+print(
+    f"Difference:        "
+    f"{rf_train_accuracy - rf_test_accuracy:.4f}"
+)
 
-# -----------------------------------
-# FEATURE IMPORTANCE CHECK
-# -----------------------------------
+# ==================================================
+# 9. RANDOM FOREST FEATURE IMPORTANCE
+# ==================================================
 
-feature_importance = pd.DataFrame({
-    "Feature": X_train.columns,
-    "Importance": random_forest_model.feature_importances_
-})
+# Get the fitted preprocessor from the pipeline
+fitted_preprocessor = random_forest_model.named_steps["preprocessor"]
+
+# Get the feature names after preprocessing
+feature_names = fitted_preprocessor.get_feature_names_out()
+
+# Get the fitted Random Forest model from the pipeline
+fitted_rf_model = random_forest_model.named_steps["model"]
+
+# Match each transformed feature with its importance
+feature_importance = pd.DataFrame(
+    {
+        "Feature": feature_names,
+        "Importance": fitted_rf_model.feature_importances_,
+    }
+)
 
 feature_importance = feature_importance.sort_values(
     by="Importance",
-    ascending=False
+    ascending=False,
 )
 
 print("\nTop 15 Random Forest Feature Importances:")
 print(feature_importance.head(15).to_string(index=False))
 
-# -----------------------------------
-# CROSS-VALIDATION
-# -----------------------------------
+# ==================================================
+# 10. RANDOM FOREST CROSS-VALIDATION
+# ==================================================
+
+# Cross-validation uses only the training data so that
+# the test set remains untouched during model development.
 
 cv_scores = cross_val_score(
     random_forest_model,
     X_train,
     y_train,
     cv=5,
-    scoring="roc_auc"
+    scoring="roc_auc",
 )
 
 print("\nRandom Forest 5-Fold Cross-Validation:")
@@ -190,32 +291,45 @@ print("ROC-AUC scores:", cv_scores)
 print(f"Mean ROC-AUC: {cv_scores.mean():.4f}")
 print(f"Standard deviation: {cv_scores.std():.4f}")
 
-# --------------------------------------------------
-# Hyperparameter tuning for Random Forest
-# --------------------------------------------------
+
+# ==================================================
+# 11. RANDOM FOREST HYPERPARAMETER TUNING
+# ==================================================
 
 param_grid = {
-    "n_estimators": [100, 200],
-    "max_depth": [10, 20, None],
-    "min_samples_split": [2, 5],
-    "min_samples_leaf": [1, 2]
+    "model__n_estimators": [100, 200],
+    "model__max_depth": [10, 20, None],
+    "model__min_samples_split": [2, 5],
+    "model__min_samples_leaf": [1, 2],
 }
 
 print("\nRandom Forest hyperparameter grid:")
 print(param_grid)
 
-# Create the GridSearchCV object
 grid_search = GridSearchCV(
-    estimator=RandomForestClassifier(random_state=42),
+    estimator=Pipeline(
+        steps=[
+            (
+                "preprocessor",
+                preprocessor,
+            ),
+            (
+                "model",
+                RandomForestClassifier(
+                    random_state=42,
+                ),
+            ),
+        ]
+    ),
     param_grid=param_grid,
     cv=5,
     scoring="roc_auc",
-    n_jobs=-1
+    n_jobs=-1,
 )
 
 print("\nRunning GridSearchCV...")
 
-# Search for the best hyperparameters using only the training data
+# Only the training data is used for hyperparameter selection.
 grid_search.fit(X_train, y_train)
 
 print("\nGridSearchCV completed.")
@@ -226,9 +340,10 @@ print(grid_search.best_params_)
 print("\nBest cross-validation ROC-AUC:")
 print(f"{grid_search.best_score_:.4f}")
 
-# --------------------------------------------------
-# Evaluate the best model selected by GridSearchCV
-# --------------------------------------------------
+
+# ==================================================
+# 12. EVALUATE THE BEST RANDOM FOREST
+# ==================================================
 
 best_rf_model = grid_search.best_estimator_
 
@@ -248,9 +363,13 @@ print(f"Recall:    {best_rf_recall:.4f}")
 print(f"F1 Score:  {best_rf_f1:.4f}")
 print(f"ROC-AUC:   {best_rf_roc_auc:.4f}")
 
-# --------------------------------------------------
-# Save the final trained model
-# --------------------------------------------------
+print("\nTuned Random Forest Confusion Matrix:")
+print(confusion_matrix(y_test, best_rf_pred))
+
+
+# ==================================================
+# 13. SAVE FINAL TRAINED MODEL
+# ==================================================
 
 os.makedirs("models", exist_ok=True)
 
@@ -258,4 +377,7 @@ model_path = "models/random_forest_churn_model.pkl"
 
 joblib.dump(best_rf_model, model_path)
 
-print(f"\nFinal Random Forest model saved to: {model_path}")
+print(
+    f"\nFinal Random Forest model saved to: "
+    f"{model_path}"
+)
