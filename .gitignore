@@ -9,3 +9,7 @@ mlruns/
 
 # Trained model artifacts
 models/
+
+# MLflow local tracking files
+mlflow.db
+mlruns/

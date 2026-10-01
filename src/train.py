@@ -1,7 +1,7 @@
 import os
-
 import joblib
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -268,8 +268,58 @@ feature_importance = feature_importance.sort_values(
     ascending=False,
 )
 
+# Clean pipeline prefixes from feature names
+feature_importance["Feature"] = (
+    feature_importance["Feature"]
+    .str.replace("remainder__", "", regex=False)
+    .str.replace("categorical__", "", regex=False)
+)
+
 print("\nTop 15 Random Forest Feature Importances:")
 print(feature_importance.head(15).to_string(index=False))
+
+# ==================================================
+# SAVE FEATURE IMPORTANCE VISUALIZATION
+# ==================================================
+
+# Select the 15 most important features
+top_features = feature_importance.head(15).sort_values(
+    by="Importance",
+    ascending=True,
+)
+
+# Create the outputs directory if it does not exist
+os.makedirs("outputs", exist_ok=True)
+
+# Create the chart
+plt.figure(figsize=(10, 7))
+
+plt.barh(
+    top_features["Feature"],
+    top_features["Importance"],
+)
+
+plt.xlabel("Feature Importance")
+plt.ylabel("Feature")
+plt.title("Top 15 Features Influencing Customer Churn")
+
+plt.tight_layout()
+
+# Save the chart
+feature_importance_path = "outputs/feature_importance.png"
+
+plt.savefig(
+    feature_importance_path,
+    dpi=300,
+    bbox_inches="tight",
+)
+
+plt.close()
+
+print(
+    f"\nFeature importance chart saved to: "
+    f"{feature_importance_path}"
+)
 
 # ==================================================
 # 10. RANDOM FOREST CROSS-VALIDATION
