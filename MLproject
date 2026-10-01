@@ -1,0 +1,5 @@
+name: retailgenius-churn-prediction
+
+entry_points:
+  main:
+    command: "python src/mlflow_tracking.py"
