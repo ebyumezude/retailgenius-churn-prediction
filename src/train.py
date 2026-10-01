@@ -135,9 +135,7 @@ logistic_model = Pipeline(
         ),
         (
             "scaler",
-            StandardScaler(
-                with_mean=False
-            ),
+            StandardScaler(with_mean=False),
         ),
         (
             "model",
@@ -237,10 +235,7 @@ rf_test_accuracy = accuracy_score(y_test, rf_pred)
 print("\nRandom Forest Overfitting Check:")
 print(f"Training Accuracy: {rf_train_accuracy:.4f}")
 print(f"Test Accuracy:     {rf_test_accuracy:.4f}")
-print(
-    f"Difference:        "
-    f"{rf_train_accuracy - rf_test_accuracy:.4f}"
-)
+print(f"Difference:        " f"{rf_train_accuracy - rf_test_accuracy:.4f}")
 
 # ==================================================
 # 9. RANDOM FOREST FEATURE IMPORTANCE
@@ -316,10 +311,7 @@ plt.savefig(
 
 plt.close()
 
-print(
-    f"\nFeature importance chart saved to: "
-    f"{feature_importance_path}"
-)
+print(f"\nFeature importance chart saved to: " f"{feature_importance_path}")
 
 # ==================================================
 # 10. RANDOM FOREST CROSS-VALIDATION
@@ -427,7 +419,4 @@ model_path = "models/random_forest_churn_model.pkl"
 
 joblib.dump(best_rf_model, model_path)
 
-print(
-    f"\nFinal Random Forest model saved to: "
-    f"{model_path}"
-)
+print(f"\nFinal Random Forest model saved to: " f"{model_path}")

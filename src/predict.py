@@ -1,7 +1,6 @@
 import joblib
 import pandas as pd
 
-
 # ==================================================
 # 1. LOAD TRAINED CHURN PREDICTION PIPELINE
 # ==================================================
@@ -48,17 +47,13 @@ print(customer_df)
 # 3. STANDARDIZE CATEGORICAL VALUES
 # ==================================================
 
-customer_df["PreferredLoginDevice"] = customer_df[
-    "PreferredLoginDevice"
-].replace(
+customer_df["PreferredLoginDevice"] = customer_df["PreferredLoginDevice"].replace(
     {
         "Phone": "Mobile Phone",
     }
 )
 
-customer_df["PreferredPaymentMode"] = customer_df[
-    "PreferredPaymentMode"
-].replace(
+customer_df["PreferredPaymentMode"] = customer_df["PreferredPaymentMode"].replace(
     {
         "CC": "Credit Card",
         "COD": "Cash on Delivery",
@@ -86,15 +81,9 @@ print("\n--- Churn Prediction ---")
 
 print("Predicted class:", prediction[0])
 
-print(
-    f"Probability of staying: "
-    f"{probability_staying:.2%}"
-)
+print(f"Probability of staying: " f"{probability_staying:.2%}")
 
-print(
-    f"Probability of churning: "
-    f"{probability_churning:.2%}"
-)
+print(f"Probability of churning: " f"{probability_churning:.2%}")
 
 if prediction[0] == 1:
     print("Prediction: Customer is likely to churn.")

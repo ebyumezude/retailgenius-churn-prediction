@@ -16,7 +16,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-
 # ==================================================
 # 1. CONFIGURATION
 # ==================================================
@@ -101,6 +100,7 @@ def create_preprocessor():
 # 5. EVALUATION FUNCTION
 # ==================================================
 
+
 def evaluate_model(model):
     """Calculate classification metrics."""
 
@@ -158,18 +158,14 @@ logistic_model = Pipeline(
 )
 
 
-with mlflow.start_run(
-    run_name="Logistic Regression Baseline"
-):
+with mlflow.start_run(run_name="Logistic Regression Baseline"):
 
     logistic_model.fit(
         X_train,
         y_train,
     )
 
-    logistic_metrics = evaluate_model(
-        logistic_model
-    )
+    logistic_metrics = evaluate_model(logistic_model)
 
     mlflow.log_param(
         "model_type",
@@ -191,19 +187,14 @@ with mlflow.start_run(
         42,
     )
 
-    mlflow.log_metrics(
-        logistic_metrics
-    )
+    mlflow.log_metrics(logistic_metrics)
 
     mlflow.sklearn.log_model(
         logistic_model,
         name="model",
     )
 
-    print(
-        "\nLogistic Regression "
-        "MLflow run completed."
-    )
+    print("\nLogistic Regression " "MLflow run completed.")
 
     print(logistic_metrics)
 
@@ -232,18 +223,14 @@ random_forest_model = Pipeline(
 )
 
 
-with mlflow.start_run(
-    run_name="Tuned Random Forest"
-):
+with mlflow.start_run(run_name="Tuned Random Forest"):
 
     random_forest_model.fit(
         X_train,
         y_train,
     )
 
-    rf_metrics = evaluate_model(
-        random_forest_model
-    )
+    rf_metrics = evaluate_model(random_forest_model)
 
     mlflow.log_param(
         "model_type",
@@ -280,22 +267,15 @@ with mlflow.start_run(
         42,
     )
 
-    mlflow.log_metrics(
-        rf_metrics
-    )
+    mlflow.log_metrics(rf_metrics)
 
     mlflow.sklearn.log_model(
-    random_forest_model,
-    name="model",
-    skops_trusted_types=[
-        "sklearn.tree._tree.Tree"
-    ],
-)
-
-    print(
-        "\nRandom Forest "
-        "MLflow run completed."
+        random_forest_model,
+        name="model",
+        skops_trusted_types=["sklearn.tree._tree.Tree"],
     )
+
+    print("\nRandom Forest " "MLflow run completed.")
 
     print(rf_metrics)
 
@@ -304,14 +284,8 @@ with mlflow.start_run(
 # 8. COMPLETE
 # ==================================================
 
-print(
-    "\nMLflow experiment tracking completed."
-)
+print("\nMLflow experiment tracking completed.")
 
-print(
-    f"Experiment: {EXPERIMENT_NAME}"
-)
+print(f"Experiment: {EXPERIMENT_NAME}")
 
-print(
-    "Run 'mlflow ui' to view the experiments."
-)
+print("Run 'mlflow ui' to view the experiments.")

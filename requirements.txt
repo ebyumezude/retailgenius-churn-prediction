@@ -14,6 +14,7 @@ async-lru==2.3.0
 attrs==26.1.0
 babel==2.18.0
 beautifulsoup4==4.15.0
+black==26.5.1
 bleach==6.4.0
 blinker==1.9.0
 cachetools==7.2.0
@@ -90,6 +91,7 @@ mlflow==3.16.1
 mlflow-skinny==3.16.1
 mlflow-tracing==3.16.1
 multidict==6.9.1
+mypy_extensions==1.1.0
 narwhals==2.26.0
 nbclient==0.11.0
 nbconvert==7.17.1
@@ -108,6 +110,7 @@ packaging==26.3
 pandas==3.0.6
 pandocfilters==1.5.1
 parso==0.8.7
+pathspec==1.1.1
 pexpect==4.9.0
 pillow==12.3.0
 platformdirs==4.12.2
@@ -130,6 +133,7 @@ pyparsing==3.3.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.3
 python-json-logger==4.2.0
+pytokens==0.4.1
 PyYAML==6.0.3
 pyzmq==27.2.0
 referencing==0.37.0

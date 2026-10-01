@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import shap
 
-
 # ==================================================
 # 1. CONFIGURATION
 # ==================================================
@@ -218,13 +217,9 @@ print("Force plot saved.")
 # ==================================================
 
 # Use the most important Random Forest feature automatically.
-most_important_index = np.argmax(
-    random_forest.feature_importances_
-)
+most_important_index = np.argmax(random_forest.feature_importances_)
 
-most_important_feature = clean_feature_names[
-    most_important_index
-]
+most_important_feature = clean_feature_names[most_important_index]
 
 plt.figure()
 
@@ -245,10 +240,7 @@ plt.savefig(
 
 plt.close()
 
-print(
-    f"Dependence plot saved for: "
-    f"{most_important_feature}"
-)
+print(f"Dependence plot saved for: " f"{most_important_feature}")
 
 
 # ==================================================
@@ -286,10 +278,7 @@ for class_value, class_name in [
 
     plt.close()
 
-    print(
-        f"Summary plot saved for class: "
-        f"{class_name}"
-    )
+    print(f"Summary plot saved for class: " f"{class_name}")
 
 
 # ==================================================

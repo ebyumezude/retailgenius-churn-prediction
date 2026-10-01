@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 # ==================================================
 # 1. LOAD CLEANED DATA
 # ==================================================
@@ -99,7 +98,4 @@ df_encoded.to_csv(
     index=False,
 )
 
-print(
-    f"\nFeature-engineered dataset saved to: "
-    f"{output_path}"
-)
+print(f"\nFeature-engineered dataset saved to: " f"{output_path}")

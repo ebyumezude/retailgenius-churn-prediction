@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 # Load the E-Commerce dataset
 file_path = "data/raw/E Commerce Dataset.xlsx"
 
@@ -53,7 +52,7 @@ missing_value_columns = [
     "OrderAmountHikeFromlastYear",
     "CouponUsed",
     "OrderCount",
-    "DaySinceLastOrder"
+    "DaySinceLastOrder",
 ]
 
 

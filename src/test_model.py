@@ -1,6 +1,5 @@
 import joblib
 
-
 # --------------------------------------------------
 # Load the saved Random Forest model
 # --------------------------------------------------
@@ -15,7 +14,7 @@ print("\nModel type:")
 print(type(model))
 
 print("\nNumber of trees:")
-print(model.n_estimators)
+
 
 print("\nModel parameters:")
 print(model.get_params())
@@ -37,7 +36,7 @@ print(model.feature_names_in_)
 import pandas as pd
 
 # Load the feature-engineered dataset
-data_path = "data/processed/ecommerce_churn_features.csv"
+data_path = "data/processed/ecommerce_churn_cleaned.csv"
 df = pd.read_csv(data_path)
 
 # Separate features from the actual churn result
