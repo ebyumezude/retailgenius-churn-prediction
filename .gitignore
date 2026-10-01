@@ -10,3 +10,5 @@ mlruns/
 # MLflow local tracking files
 mlflow.db
 mlruns/
+
+docs/_build/

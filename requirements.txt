@@ -1,6 +1,7 @@
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
 aiosignal==1.4.0
+alabaster==1.0.0
 alembic==1.20.0
 annotated-doc==0.0.5
 annotated-types==0.8.0
@@ -31,6 +32,7 @@ databricks-sdk==0.144.0
 debugpy==1.8.22
 defusedxml==0.7.1
 docker==7.2.0
+docutils==0.22.4
 et_xmlfile==2.0.0
 executing==2.2.1
 fastapi==0.142.2
@@ -52,6 +54,7 @@ httpcore==1.0.9
 httpx==0.28.1
 huey==3.4.0
 idna==3.20
+imagesize==2.0.1
 importlib_metadata==9.0.1
 ipykernel==7.4.0
 ipython==9.17.1
@@ -141,6 +144,7 @@ requests==2.34.2
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rfc3987-syntax==1.1.0
+roman-numerals==4.1.0
 rpds-py==2026.6.3
 scikit-learn==1.9.1
 scipy==1.18.1
@@ -150,7 +154,15 @@ six==1.17.0
 skops==0.16.0
 slicer==0.0.8
 smmap==5.0.3
+snowballstemmer==3.1.1
 soupsieve==2.10
+Sphinx==9.1.0
+sphinxcontrib-applehelp==2.0.0
+sphinxcontrib-devhelp==2.0.0
+sphinxcontrib-htmlhelp==2.1.0
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==2.0.0
+sphinxcontrib-serializinghtml==2.0.0
 SQLAlchemy==2.1.1
 sqlparse==0.6.0
 stack-data==0.6.3
